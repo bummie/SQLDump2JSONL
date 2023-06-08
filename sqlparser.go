@@ -48,6 +48,10 @@ func rowToJsonLine(row sqlparser.ValTuple, columns sqlparser.Columns) (string, e
 
 	for rowIndex, value := range row {
 
+		if len(columns)-1 < rowIndex {
+			break
+		}
+
 		switch rowValue := value.(type) {
 		case *sqlparser.SQLVal:
 			switch rowValue.Type {
