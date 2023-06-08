@@ -21,6 +21,23 @@ func ParseSql(rawSql string) {
 	case *sqlparser.Insert:
 		fmt.Println("INSERT")
 		fmt.Println(statement.Columns)
+
+		switch rows := statement.Rows.(type) {
+		case sqlparser.Values:
+			for _, row := range rows {
+				for _, value := range row {
+					switch rowValue := value.(type) {
+					case *sqlparser.SQLVal:
+						fmt.Println(rowValue.Type == sqlparser.IntVal)
+						fmt.Println(rowValue.Val)
+					}
+
+				}
+
+			}
+		}
+		fmt.Println(statement.Table.Name)
+
 	default:
 		fmt.Println(statement)
 	}
