@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `user_details` (
   `gender` varchar(10) DEFAULT NULL,
   `password` varchar(50) DEFAULT NULL,
   `status` tinyint(10) DEFAULT NULL,
+  `penger` float(10) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10001 ;
 
@@ -34,3 +35,6 @@ INSERT INTO `user_details` (`user_id`, `username`, `first_name`, `last_name`, `g
 (8, 'daniel53', 'mark', 'mike', 'Male', '299cbf7171ad1b2967408ed200b4e26c', 1),
 (9, 'brooks80', 'morgan', 'maria', 'Female', 'aa736a35dc15934d67c0a999dccff8f6', 1),
 (10, 'morgan65', 'paul', 'miller', 'Female', 'a28dca31f5aa5792e1cefd1dfd098569', 1);
+
+INSERT INTO `user_details` (`user_id`, `username`, `first_name`, `last_name`, `gender`, `password`, `status`, `penger`) VALUES
+(10, 'morgan65', 'paul', 'miller', 'Female', 'a28dca31f5aa5792e1cefd1dfd098569', 1, 13.42);
