@@ -8,39 +8,54 @@ import (
 	"path/filepath"
 )
 
+type Application struct {
+	InputPath string
+}
+
 func main() {
 
 	sqlFilepath := flag.String("p", "", "Specify the path to your *.sql dump file")
 	flag.Parse()
 
-	if *sqlFilepath == "" {
-		flag.PrintDefaults()
-		os.Exit(1)
+	app := &Application{
+		InputPath: *sqlFilepath,
 	}
 
-	parseSqlDump(*sqlFilepath)
+	parseSqlDump(app)
 }
 
-func parseSqlDump(filePath string) {
-	filePath, err := filepath.Abs(filePath)
+func parseSqlDump(app *Application) {
 
-	if err != nil {
-		fmt.Println("Did not understand the provided path:\n" + err.Error())
-		os.Exit(2)
-	}
-	file, err := os.Open(filePath)
+	inputReader := bufio.NewReader(os.Stdin)
 
-	if err != nil {
-		panic(err.Error())
+	if len(app.InputPath) != 0 {
+		// Reading from inputpath
+		inputReader = createFileReader(app.InputPath)
 	}
 
-	fileReader := bufio.NewReader(file)
 	for {
-		rawSqlStatement, err := ReadSqlStatements(fileReader, []byte(";\n"), []byte(";\r\n"))
+		rawSqlStatement, err := ReadSqlStatements(inputReader, []byte(";\n"), []byte(";\r\n"))
 		if err != nil {
 			break
 		}
 
 		ParseSql(string(rawSqlStatement))
 	}
+}
+
+func createFileReader(inputPath string) *bufio.Reader {
+	filePath, err := filepath.Abs(inputPath)
+
+	if err != nil {
+		fmt.Println("Did not understand the provided path:\n" + err.Error())
+		os.Exit(2)
+	}
+
+	file, err := os.Open(filePath)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return bufio.NewReader(file)
 }
