@@ -9,5 +9,5 @@ go build
 
 ## Run
 ```
-go run .
+./parsesqldumper -p testdata/small.sql
 ```
