@@ -15,6 +15,8 @@ type Application struct {
 func main() {
 
 	sqlFilepath := flag.String("p", "", "Specify the path to your *.sql dump file")
+	sqlFilepath := flag.String("p", "", "Specify the path to your *.sql dump file")
+
 	flag.Parse()
 
 	app := &Application{
@@ -23,6 +25,9 @@ func main() {
 
 	parseSqlDump(app)
 }
+
+var EOL_LF = []byte(";\n")
+var EOL_CRLF = []byte(";\r\n")
 
 func parseSqlDump(app *Application) {
 
@@ -34,7 +39,7 @@ func parseSqlDump(app *Application) {
 	}
 
 	for {
-		rawSqlStatement, err := ReadSqlStatements(inputReader, []byte(";\n"), []byte(";\r\n"))
+		rawSqlStatement, err := ReadSqlStatements(inputReader, EOL_LF, EOL_CRLF)
 		if err != nil {
 			break
 		}
