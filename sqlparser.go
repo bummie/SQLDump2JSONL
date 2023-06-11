@@ -3,41 +3,38 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/blastrain/vitess-sqlparser/sqlparser"
 )
 
-func ParseSql(rawSql string) {
+func ParseSql(app Application, rawSql string) {
 	rawSql = strings.TrimSuffix(rawSql, "\n")
 	statement, err := sqlparser.Parse(rawSql)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
 	switch statement := statement.(type) {
-	case *sqlparser.CreateTable:
-		fmt.Println(statement.NewName.Name.String())
 	case *sqlparser.Insert:
-		parseInsert(statement)
-	default:
-		fmt.Println(statement)
+		parseInsert(app, statement)
 	}
 }
 
-func parseInsert(statement *sqlparser.Insert) {
+func parseInsert(app Application, statement *sqlparser.Insert) {
 	switch rows := statement.Rows.(type) {
 	case sqlparser.Values:
 		for _, row := range rows {
 			jsonLine, err := rowToJsonLine(row, statement.Columns)
 
 			if err != nil {
-				fmt.Println("Failed writing line:\n" + err.Error())
+				fmt.Fprintln(os.Stderr, "Failed writing line:\n"+err.Error())
 			}
 
-			WriteRowToFile(jsonLine, statement.Table.Name.String()+".jsonl")
+			WriteRow(app, jsonLine, statement.Table.Name.String()+".jsonl")
 		}
 	}
 }

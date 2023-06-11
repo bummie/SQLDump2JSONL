@@ -3,7 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,6 +26,9 @@ func ReadSqlStatements(r reader, delimLinux []byte, delimWindows []byte) (line [
 		line = append(line, []byte(s)...)
 
 		if err != nil {
+			if err != io.EOF {
+				fmt.Fprintln(os.Stderr, err)
+			}
 			return
 		}
 
@@ -32,16 +38,31 @@ func ReadSqlStatements(r reader, delimLinux []byte, delimWindows []byte) (line [
 	}
 }
 
-func WriteRowToFile(row string, filename string) {
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+func WriteRow(app Application, row string, filename string) {
+
+	if len(app.OutputPath) == 0 {
+		fmt.Fprintln(os.Stdout, row)
+		return
+	}
+
+	outPath, err := filepath.Abs(app.OutputPath)
 
 	if err != nil {
-		fmt.Println("Failed writing line: " + row)
+		fmt.Fprintln(os.Stderr, "Did not understand the provided path:\n"+err.Error())
+		os.Exit(2)
+	}
+
+	outPath = path.Join(outPath, filename)
+
+	file, err := os.OpenFile(outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed writing line: "+row+"\n"+err.Error())
 		return
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(row + "\n"); err != nil {
-		fmt.Println(err.Error())
+		fmt.Fprintln(os.Stderr, err)
 	}
 }
